@@ -1,0 +1,116 @@
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto Slab', serif;
+    background: #67e2f5;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+/* Container central */
+.container {
+    text-align: center;
+    padding: 40px;
+    background: #ffffff;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+}
+
+/* Título estilizado com animação */
+.container h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+    color: #2c3e50;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    animation: fadeInUp 1s ease forwards;
+    opacity: 0;
+}
+
+/* Animação do título */
+@keyframes fadeInUp {
+    0% {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Subtítulo */
+.container p {
+    font-size: 16px;
+    margin-bottom: 30px;
+    color: #666;
+}
+
+/* Botões em coluna */
+.buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Estilo comum dos botões */
+.buttons a {
+    padding: 15px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease, transform 0.2s;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.buttons a i {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+/* Cores específicas */
+a.admin {
+    background-color: #007bff;
+}
+a.admin:hover {
+    background-color: #0056b3;
+}
+
+a.recepcao {
+    background-color: #28a745;
+}
+a.recepcao:hover {
+    background-color: #1e7e34;
+}
+
+a.medico {
+    background-color: #dc3545;
+}
+a.medico:hover {
+    background-color: #b21f2d;
+}
+
+/* Responsivo */
+@media (max-width: 500px) {
+    .container h1 {
+        font-size: 24px;
+    }
+
+    .buttons a {
+        font-size: 15px;
+        padding: 12px;
+    }
+}
