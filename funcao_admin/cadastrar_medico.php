@@ -9,6 +9,7 @@ $mensagem_tipo = '';
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $crm = $_POST['crm']; 
     $nome = $_POST['nome'];
+    $cpf = $_POST['cpf'];
     $telefone = $_POST['telefone'];
     $email = $_POST['email'];
     $senha = $_POST['senha'];
@@ -21,6 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $dados = [
         'crm' => $crm,
         'nome' => $nome,
+        'cpf' => $cpf,
         'telefone' => $telefone,
         'email' => $email,
         'senha' => $senha_hash,
@@ -83,13 +85,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
 
             <div class="form-group">
+                <label class="form-label">CPF:</label>
+                <input type="text" name="cpf" class="form-control cpf-mask" placeholder="123.456.789-00" required>
+            </div>
+
+            <div class="form-group">
                 <label class="form-label">Telefone:</label>
-                <input type="text" name="telefone" class="form-control telefone-mask" required>
+                <input type="text" name="telefone" class="form-control telefone-mask" placeholder="(11) 11111-1111" required>
             </div>
 
             <div class="form-group">
                 <label class="form-label">Email:</label>
-                <input type="email" name="email" class="form-control" required>
+                <input type="email" name="email" class="form-control" placeholder="exemplo@email.com" required>
             </div>
 
             <div class="form-group">
@@ -99,7 +106,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <div class="form-group">
                 <label class="form-label">Especialidade:</label>
-                <input type="text" name="especialidade" class="form-control" required>
+                <select name="especialidade" class="form-control" required>
+                    <option value="">Selecione a especialidade</option>
+                    <option value="Cardiologia">Cardiologia</option>
+                    <option value="Dermatologia">Dermatologia</option>
+                    <option value="Ginecologia">Ginecologia</option>
+                    <option value="Pediatria">Pediatria</option>
+                    <option value="Ortopedia">Ortopedia</option>
+                    <option value="Psiquiatria">Psiquiatria</option>
+                    <option value="Oftalmologia">Oftalmologia</option>
+                    <option value="Clínico Geral">Endocrinologia</option>
+                    <option value="Neurologia">Endocrinologia</option>                    
+                </select>
             </div>
 
             <div style="text-align: center; margin-top: 20px;">
@@ -107,7 +125,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
         </form>
     </div>
-</div>
-
+  </div>
 </body>
 </html>

@@ -92,7 +92,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <form method="POST" class="form-content">
             <div class="form-group">
                 <label class="form-label">Nome:</label>
-                <input type="text" name="nome" class="form-control" required>
+                <input type="text" name="nome" class="form-control" placeholder="Digite o nome completo" required>                
             </div>
 
             <div class="form-group">
@@ -104,21 +104,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <div class="form-group"> 
                 <label class="form-label">CPF:</label>
-                <input type="text" name="cpf" class="form-control cpf-mask" required>
+                <input type="text" name="cpf" class="form-control cpf-mask" placeholder="123.456.789-00" required>
             </div>
 
             <div class="form-group">
                 <label class="form-label">Email:</label>
-                <input type="email" name="email" class="form-control" required>
+                <input type="email" name="email" class="form-control" placeholder="exemplo@email.com" required>
             </div>
 
             <div class="form-group">
                 <label class="form-label">Telefone:</label>
-                <input type="text" name="telefone" class="form-control telefone-mask" required>
+                <input type="text" name="telefone" class="form-control telefone-mask" placeholder="(00) 0000-0000" required>
             </div>
 
             <div class="form-group">
-                <label class="form-label">Rua:</label>
+                <label class="form-label">Endereço:</label>
                 <input type="text" name="rua" class="form-control" required>
             </div>
 
@@ -138,8 +138,37 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
 
             <div class="form-group">
-                <label class="form-label">Estado (sigla):</label>
-                <input type="text" name="estado" class="form-control" required maxlength="2">
+                <label class="form-label">Estado:</label>
+                <select name="estado" class="form-control" required>
+                    <option value="">Selecione</option>
+                    <option value="AC">AC</option>
+                    <option value="AL">AL</option>
+                    <option value="AP">AP</option>
+                    <option value="AM">AM</option>
+                    <option value="BA">BA</option>
+                    <option value="CE">CE</option>
+                    <option value="DF">DF</option>
+                    <option value="ES">ES</option>
+                    <option value="GO">GO</option>
+                    <option value="MA">MA</option>
+                    <option value="MT">MT</option>
+                    <option value="MS">MS</option>
+                    <option value="MG">MG</option>
+                    <option value="PA">PA</option>
+                    <option value="PB">PB</option>
+                    <option value="PR">PR</option>
+                    <option value="PE">PE</option>
+                    <option value="PI">PI</option>
+                    <option value="RJ">RJ</option>
+                    <option value="RN">RN</option>
+                    <option value="RS">RS</option>
+                    <option value="RO">RO</option>
+                    <option value="RR">RR</option>
+                    <option value="SC">SC</option>
+                    <option value="SP">SP</option>
+                    <option value="SE">SE</option>
+                    <option value="TO">TO</option>
+                </select>
             </div>
 
             <div style="text-align: center; margin-top: 20px;">
