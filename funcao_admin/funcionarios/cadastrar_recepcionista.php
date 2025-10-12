@@ -1,13 +1,14 @@
 <?php
-require_once '../autenticacao/verificar_login.php';
-require_once '../config_BD/conexaoBD.php';
-require_once '../functions/insert.php';
+require_once '../../autenticacao/verificar_login.php';
+require_once '../../config_BD/conexaoBD.php';
+require_once '../../functions/insert.php';
 
 $mensagem = '';
 $mensagem_tipo = '';
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $nome = $_POST['nome'];
+    $cpf = $_POST['cpf'];
     $email = $_POST['email'];
     $telefone = $_POST['telefone'];
     $senha = $_POST['senha'];
@@ -16,6 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $dados = [
         'nome' => $nome,
+        'cpf' => $cpf,
         'email' => $email,
         'telefone' => $telefone,
         'senha' => $senha_hash
@@ -39,8 +41,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Cadastrar Recepcionista</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <script src="../assets/js/formatacao.js" defer></script>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <script src="../../assets/js/formatacao.js" defer></script>
 </head>
 
 <body>
@@ -55,7 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <nav class="navbar">
         <div class="container">
             <ul class="nav-list">
-                <a href="../dashboard_users/administracao.php" class="nav-link">Voltar</a>
+                <a href="../../dashboard_users/administracao.php" class="nav-link">Voltar</a>
             </ul>
         </div>
     </nav>
@@ -70,6 +72,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <div class="form-group">
                     <label class="form-label">Nome:</label>
                     <input type="text" name="nome" class="form-control" placeholder="Digite o nome completo" required>
+                </div>
+
+                <div class="form-group"> 
+                    <label class="form-label">CPF:</label>
+                    <input type="text" name="cpf" class="form-control cpf-mask" placeholder="123.456.789-00" required>
                 </div>
 
                 <div class="form-group">

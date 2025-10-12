@@ -74,11 +74,23 @@ if (isset($_GET['id_paciente']) && is_numeric($_GET['id_paciente'])) {
 }
 
 function formatarCPF($cpf) {
-    return substr($cpf, 0, 3) . '.' . substr($cpf, 3, 3) . '.' . substr($cpf, 6, 3) . '-' . substr($cpf, 9, 2);
+    $cpf = preg_replace('/\D/', '', $cpf); // remove tudo que não for número
+    if (strlen($cpf) === 11) {
+        return substr($cpf, 0, 3) . '.' . substr($cpf, 3, 3) . '.' . substr($cpf, 6, 3) . '-' . substr($cpf, 9, 2);
+    }
+    return $cpf; // retorna o valor original se estiver incompleto
 }
 
 function formatarTelefone($telefone) {
-    return '(' . substr($telefone, 0, 2) . ') ' . substr($telefone, 2, 5) . '-' . substr($telefone, 7, 4);
+    $telefone = preg_replace('/\D/', '', $telefone); // remove tudo que não for número
+    if (strlen($telefone) === 10) {
+        // formato (XX) XXXX-XXXX
+        return '(' . substr($telefone, 0, 2) . ') ' . substr($telefone, 2, 4) . '-' . substr($telefone, 6);
+    } elseif (strlen($telefone) === 11) {
+        // formato (XX) XXXXX-XXXX
+        return '(' . substr($telefone, 0, 2) . ') ' . substr($telefone, 2, 5) . '-' . substr($telefone, 7);
+    }
+    return $telefone; // retorna o valor original se estiver incompleto
 }
 ?>
 
@@ -151,6 +163,6 @@ function formatarTelefone($telefone) {
             </form>
         </div>
     <?php endif; ?>
-</div>
+</div> 
 </body>
 </html>

@@ -1,6 +1,6 @@
 <?php
-require_once '../autenticacao/verificar_login.php';
-require_once '../config_BD/conexaoBD.php';
+require_once '../../autenticacao/verificar_login.php';
+require_once '../../config_BD/conexaoBD.php';
 
 // Recebe filtros do GET
 $id_funcionario = $_GET['id_funcionario'] ?? '';
@@ -25,11 +25,11 @@ if ($cargo !== '') {
 
 // Cria a query SQL que une os funcionários
 $sql = "
-    SELECT id_admin AS id, nome, 'Administrador' AS cargo, email, telefone FROM administrador
+    SELECT id_admin AS id, nome, 'Administrador' AS cargo, cpf, email, telefone FROM administrador
     UNION ALL
-    SELECT id_medico AS id, nome, 'Médico' AS cargo, email, telefone FROM medicos
+    SELECT id_medico AS id, nome, 'Médico' AS cargo, cpf, email, telefone FROM medicos
     UNION ALL
-    SELECT id_recepcionista AS id, nome, 'Recepcionista' AS cargo, email, telefone FROM recepcionista
+    SELECT id_recepcionista AS id, nome, 'Recepcionista' AS cargo, cpf, email, telefone FROM recepcionista
 ";
 
 // Se tiver filtros, envolver e filtrar a query externa
@@ -50,6 +50,24 @@ if (count($params) > 0) {
 
 $stmt->execute();
 $result = $stmt->get_result();
+
+function formatarCPF($cpf) {
+    $cpf = preg_replace('/\D/', '', $cpf);
+    if (strlen($cpf) === 11) {
+        return substr($cpf, 0, 3) . '.' . substr($cpf, 3, 3) . '.' . substr($cpf, 6, 3) . '-' . substr($cpf, 9, 2);
+    }
+    return $cpf;
+}
+
+function formatarTelefone($telefone) {
+    $tel = preg_replace('/\D/', '', $telefone);
+    if (strlen($tel) === 11) {
+        return '(' . substr($tel, 0, 2) . ') ' . substr($tel, 2, 5) . '-' . substr($tel, 7, 4);
+    } elseif (strlen($tel) === 10) {
+        return '(' . substr($tel, 0, 2) . ') ' . substr($tel, 2, 4) . '-' . substr($tel, 6, 4);
+    }
+    return $telefone;
+}
 ?>
 
 <!DOCTYPE html>
@@ -57,7 +75,7 @@ $result = $stmt->get_result();
 <head>
     <meta charset="UTF-8">
     <title>Funcionários Cadastrados</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/style.css">
     <style>
         .action-buttons {
             display: flex;
@@ -89,14 +107,14 @@ $result = $stmt->get_result();
 <header class="header">
     <div class="container header-content">
         <h1>Funcionários Cadastrados</h1>
-        <a href="../autenticacao/logout.php" class="logout-btn">Sair</a>
+        <a href="../../autenticacao/logout.php" class="logout-btn">Sair</a>
     </div>
 </header>
 
 <nav class="navbar">
     <div class="container">
         <ul class="nav-list">
-            <a href="../dashboard_users/administracao.php" class="nav-link">Voltar</a>
+            <a href="../../dashboard_users/administracao.php" class="nav-link">Voltar</a>
         </ul>
     </div>
 </nav>
@@ -139,6 +157,7 @@ $result = $stmt->get_result();
                     <th>ID</th>
                     <th>Nome</th>
                     <th>Cargo</th>
+                    <th>CPF</th>
                     <th>Email</th>
                     <th>Telefone</th>
                     <th>Ações</th>
@@ -150,16 +169,17 @@ $result = $stmt->get_result();
                         <td><?= htmlspecialchars($row['id']) ?></td>
                         <td><?= htmlspecialchars($row['nome']) ?></td>
                         <td><?= htmlspecialchars($row['cargo']) ?></td>
+                        <td><?= htmlspecialchars(formatarCPF($row['cpf'])) ?></td>
                         <td><?= htmlspecialchars($row['email']) ?></td>
-                        <td><?= htmlspecialchars($row['telefone']) ?></td>
+                        <td><?= htmlspecialchars(formatarTelefone($row['telefone'])) ?></td>
                         <td>
                             <button class="btn-sm btn-edit"
-                                onclick="editarRegistro('../../funcao_admin/editar_funcionario.php?id_funcionario=<?= $row['id'] ?>')">
+                                onclick="editarRegistro('../../funcao_admin/funcionarios/editar_funcionario.php?id=<?= $row['id'] ?>&cargo=<?= urlencode(strtolower($row['cargo'])) ?>')">
                                 Editar
                             </button>
 
                             <button class="btn-sm btn-delete"
-                                onclick="excluirRegistro('../../funcao_admin/excluir_funcionario.php?id_funcionario=<?= $row['id'] ?>')">
+                                onclick="excluirRegistro('../../funcao_admin/funcionarios/excluir_funcionario.php?id=<?= $row['id'] ?>&cargo=<?= urlencode(strtolower($row['cargo'])) ?>')">
                                 Excluir
                             </button>
                         </td>
@@ -172,7 +192,6 @@ $result = $stmt->get_result();
     <?php endif; ?>
 </div>
 
-<script src="../../assets/Js/script_editar_excluir_generico.js"></script>
 <script>
     function toggleFiltros() {
         const filtros = document.getElementById('filtros');
@@ -186,6 +205,9 @@ $result = $stmt->get_result();
         }
     }
 </script>
+
+<script src="../../assets/Js/script_listar_pacientes.js"></script>
+<script src="../../assets/Js/script_editar_excluir_generico.js"></script>
 
 </body>
 </html>

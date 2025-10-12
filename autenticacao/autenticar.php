@@ -1,9 +1,16 @@
 <?php
 require_once '../config_BD/conexaoServer.php';
 
-// Verifica se o banco de dados 'consultorio' existe, e se não, chama o script de instalação
+// Caminho absoluto para o script fora do projeto
+$setupPath = 'C:/xampp/setup_scripts/setup_admin.php';
+
 if (!checkDatabaseExists($conn, 'consultorio')) {
-    include '../config_BD/setup_admin.php';  // Script que cria o banco e as tabelas
+    if (file_exists($setupPath)) {
+        include $setupPath;
+    } else {
+        die("Erro: script de instalação não encontrado.
+             Entre em contato com o administrador do projeto.");
+    }
 }
 
 // Conecta ao banco de dados 'consultorio'

@@ -31,15 +31,15 @@ require_once '../config_BD/conexaoBD.php';
         <h2 style="text-align:center;">Área Administrativa</h2>
 
         <div class="main-buttons">
-            <a href="../funcao_admin/cadastrar_medico.php" class="button-box">
+            <a href="../funcao_admin/funcionarios/cadastrar_medico.php" class="button-box">
                 <i class="fas fa-user-md"></i>
                 Cadastrar Médico
             </a>
-            <a href="../funcao_admin/cadastrar_recepcionista.php" class="button-box">
+            <a href="../funcao_admin/funcionarios/cadastrar_recepcionista.php" class="button-box">
                 <i class="fas fa-user-plus"></i>
                 Cadastrar Recepcionista
             </a>
-            <a href="../funcao_admin/gerenciar_funcionarios.php" class="button-box"> 
+            <a href="../funcao_admin/funcionarios/gerenciar_funcionarios.php" class="button-box"> 
                 <i class="fas fa-users-cog"></i>
                 Gerenciar Funcionários
             </a>

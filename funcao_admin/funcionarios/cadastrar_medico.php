@@ -1,7 +1,7 @@
 <?php
-require_once '../autenticacao/verificar_login.php';
-require_once '../config_BD/conexaoBD.php';
-require_once '../functions/insert.php';
+require_once '../../autenticacao/verificar_login.php';
+require_once '../../config_BD/conexaoBD.php';
+require_once '../../functions/insert.php';
 
 $mensagem = '';
 $mensagem_tipo = '';
@@ -47,22 +47,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Cadastrar Médico</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <script src="../assets/js/formatacao.js" defer></script>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <script src="../../assets/js/formatacao.js" defer></script>
 </head>
 <body>
 
 <header class="header">
     <div class="container header-content">
         <h1>Cadastrar Médico</h1>
-        <a href="../views/logout.php" class="logout-btn">Sair</a>
+        <a href="../../views/logout.php" class="logout-btn">Sair</a>
     </div>
 </header>
 
 <nav class="navbar">
     <div class="container">
         <ul class="nav-list">
-            <a href="../dashboard_users/administracao.php" class="nav-link">Voltar</a>
+            <a href="../../dashboard_users/administracao.php" class="nav-link">Voltar</a>
         </ul>
     </div>
 </nav>
