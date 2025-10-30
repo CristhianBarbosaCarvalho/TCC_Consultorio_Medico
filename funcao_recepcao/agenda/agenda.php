@@ -1,6 +1,7 @@
 <?php
-require_once '../../autenticacao/verificar_login.php';
 require_once '../../config_BD/conexaoBD.php';
+require_once '../../autenticacao/verificar_login.php';
+verificarAcesso(['recepcao']);
 require_once '../../functions/validacoes.php';
 
 // Buscar todos os médicos cadastrados com suas especialidades concatenadas

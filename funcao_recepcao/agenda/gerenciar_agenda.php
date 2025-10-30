@@ -1,6 +1,7 @@
 <?php
-require_once '../../autenticacao/verificar_login.php';
 require_once '../../config_BD/conexaoBD.php';
+require_once '../../autenticacao/verificar_login.php';
+verificarAcesso(['recepcao']);
 require_once '../../functions/delete.php';
 
 if (!isset($_GET['id_medico'])) {

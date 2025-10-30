@@ -37,7 +37,7 @@ function atualizarDados($tabela, $dados, $colunaCondicao, $valorCondicao) {
         $stmt->close();
         return true;
     } else {
-        $erro = $stmt->error; 
+        $erro = $stmt->error;
         $stmt->close();
         return $erro;
     }

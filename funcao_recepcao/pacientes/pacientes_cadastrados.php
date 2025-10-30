@@ -192,6 +192,7 @@ function toggleFiltros() {
 
 
 <script src="../../assets/Js/mascaras.js"></script>
+<script src="../../assets/Js/script_editar_excluir_generico.js"></script>
 
 </body>
 </html>

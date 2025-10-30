@@ -1,6 +1,7 @@
 <?php
-require_once '../../autenticacao/verificar_login.php';
 require_once '../../config_BD/conexaoBD.php';
+require_once '../../autenticacao/verificar_login.php';
+verificarAcesso(['admin']);
 
 // Recebe filtros do GET
 $id_funcionario = $_GET['id_funcionario'] ?? '';

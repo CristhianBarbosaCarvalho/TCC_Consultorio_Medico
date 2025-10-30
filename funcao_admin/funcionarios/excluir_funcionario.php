@@ -1,6 +1,7 @@
 <?php
-require_once '../../autenticacao/verificar_login.php';
 require_once '../../config_BD/conexaoBD.php';
+require_once '../../autenticacao/verificar_login.php';
+verificarAcesso(['admin']);
 require_once '../../functions/busca.php';
 require_once '../../functions/delete.php'; // <-- nova função genérica para deletar
 

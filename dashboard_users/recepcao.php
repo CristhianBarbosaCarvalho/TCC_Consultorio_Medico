@@ -1,6 +1,7 @@
 <?php
-require_once '../autenticacao/verificar_login.php';
 require_once '../config_BD/conexaoBD.php';
+require_once '../autenticacao/verificar_login.php';
+verificarAcesso(['recepcao']);
 ?>
 <!DOCTYPE html>
 <html>
@@ -43,13 +44,17 @@ require_once '../config_BD/conexaoBD.php';
                 <i class="fas fa-calendar-alt"></i>
                 Gerenciar Agendas
             </a>
-            <a href="../funcao_recepcao/consulta/agendar_consulta.php" class="button-box">
+            <a href="../funcao_recepcao/consulta/marcar_consulta.php" class="button-box">
                 <i class="fas fa-stethoscope"></i>
                 Marcar Consulta
             </a>
             <a href="../funcao_recepcao/consulta/gerenciar_consulta.php" class="button-box">
                 <i class="fas fa-file-medical"></i>
                 Gerenciar Consulta
+            </a>
+            <a href="../funcao_recepcao/consulta/relatorio_consulta.php" class="button-box">
+                <i class="fas fa-calendar-check"></i>
+                <span>Visualizar Consultas</span>
             </a>
         </div>
     </div>

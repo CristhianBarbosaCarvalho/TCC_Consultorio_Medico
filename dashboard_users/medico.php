@@ -1,6 +1,7 @@
 <?php
-require_once '../autenticacao/verificar_login.php';
 require_once '../config_BD/conexaoBD.php';
+require_once '../autenticacao/verificar_login.php';
+verificarAcesso(['medico']);
 ?>
 
 <!DOCTYPE html>
@@ -32,7 +33,7 @@ require_once '../config_BD/conexaoBD.php';
         <h2 style="text-align:center;">Área do Médico</h2>
 
         <div class="main-buttons">
-            <a href="../funcao_medico/consulta_agendadas.php" class="button-box">
+            <a href="../funcao_medico/consultas_agendadas.php" class="button-box">
                 <i class="fas fa-calendar-check"></i>
                 Consultas Agendadas
             </a>
