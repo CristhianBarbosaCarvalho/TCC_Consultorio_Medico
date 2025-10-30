@@ -1,0 +1,89 @@
+/* editar_agenda.css */
+
+/* Container principal do formulário */
+.container-form {
+    max-width: 500px;
+    margin: 30px auto;
+    background: #f9f9f9;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Título do formulário */
+.container-form h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #2563eb;
+}
+
+/* Labels e inputs do formulário */
+.form-agenda label {
+    display: block;
+    margin-top: 15px;
+    font-weight: 500;
+}
+
+.form-agenda input[type="date"],
+.form-agenda input[type="time"],
+.form-agenda select {
+    width: 100%;
+    padding: 8px 10px;
+    margin-top: 5px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+/* Botão de envio */
+.form-agenda button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 10px;
+    background-color: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.form-agenda button:hover {
+    background-color: #1d4ed8;
+}
+
+/* Mensagens de alerta */
+.alert {
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.alert-success {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.alert-danger {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+
+/* Botão de voltar */
+.btn-voltar {
+    display: inline-block;
+    margin-bottom: 15px;
+    color: #2563eb;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.btn-voltar i {
+    margin-right: 5px;
+}
+
+.btn-voltar:hover {
+    text-decoration: underline;
+}

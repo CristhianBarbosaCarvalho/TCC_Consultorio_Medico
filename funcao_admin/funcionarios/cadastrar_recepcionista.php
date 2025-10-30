@@ -2,35 +2,56 @@
 require_once '../../autenticacao/verificar_login.php';
 require_once '../../config_BD/conexaoBD.php';
 require_once '../../functions/insert.php';
+require_once '../../functions/validacoes.php'; // Inclui funções de validação
 
 $mensagem = '';
 $mensagem_tipo = '';
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $nome = $_POST['nome'];
-    $cpf = $_POST['cpf'];
-    $email = $_POST['email'];
-    $telefone = $_POST['telefone'];
+    $nome = trim($_POST['nome']);
+    $cpf = trim($_POST['cpf']);
+    $email = trim($_POST['email']);
+    $telefone = trim($_POST['telefone']);
     $senha = $_POST['senha'];
 
-    $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
-
-    $dados = [
-        'nome' => $nome,
-        'cpf' => $cpf,
-        'email' => $email,
-        'telefone' => $telefone,
-        'senha' => $senha_hash
-    ];
-
-    $resultado = inserirDados('recepcionista', $dados);
-
-    if ($resultado === true) {
-        $mensagem = "Recepcionista cadastrado com sucesso!";
-        $mensagem_tipo = "alert-success";
-    } else {
-        $mensagem = "Erro ao cadastrar recepcionista: " . $resultado;
+    // Validações básicas
+    $cpfLimpo = limparNumero($cpf);
+    if (!validarCPF($cpfLimpo)) {
+        $mensagem = "❌ CPF inválido!";
         $mensagem_tipo = "alert-danger";
+    } elseif (!validarTelefone($telefone)) {
+        $mensagem = "❌ Telefone inválido!";
+        $mensagem_tipo = "alert-danger";
+    } else {
+        // Criptografa a senha
+        $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
+
+        // Verifica duplicidade usando função global
+        $erroDuplicidade = verificarDuplicidadeFuncionario($conn, $cpf, $email);
+
+        if ($erroDuplicidade !== false) {
+            $mensagem = $erroDuplicidade;
+            $mensagem_tipo = "alert-danger";
+        } else {
+            // Insere novo recepcionista
+            $dados = [
+                'nome' => $nome,
+                'cpf' => $cpfLimpo,
+                'email' => $email,
+                'telefone' => $telefone,
+                'senha' => $senha_hash
+            ];
+
+            $resultado = inserirDados('recepcionista', $dados);
+
+            if ($resultado === true) {
+                $mensagem = "✅ Recepcionista cadastrado com sucesso!";
+                $mensagem_tipo = "alert-success";
+            } else {
+                $mensagem = "❌ Erro ao cadastrar recepcionista: " . $resultado;
+                $mensagem_tipo = "alert-danger";
+            }
+        }
     }
 }
 ?>
@@ -46,7 +67,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </head>
 
 <body>
-
     <header class="header">
         <div class="container header-content">
             <h1>Cadastrar Recepcionista</h1>
@@ -64,7 +84,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <div class="container" style="margin-top: 100px; max-width: 600px;">
         <?php if (!empty($mensagem)) : ?>
-            <p class="alert <?= $mensagem_tipo ?>"><?= htmlspecialchars($mensagem) ?></p>
+        <p class="alert <?= $mensagem_tipo ?>"><?= htmlspecialchars($mensagem) ?></p>
         <?php endif; ?>
 
         <div class="card">
@@ -74,7 +94,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <input type="text" name="nome" class="form-control" placeholder="Digite o nome completo" required>
                 </div>
 
-                <div class="form-group"> 
+                <div class="form-group">
                     <label class="form-label">CPF:</label>
                     <input type="text" name="cpf" class="form-control cpf-mask" placeholder="123.456.789-00" required>
                 </div>
@@ -86,7 +106,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                 <div class="form-group">
                     <label class="form-label">Telefone:</label>
-                    <input type="text" name="telefone" class="form-control telefone-mask" placeholder="(11) 99999-9999" required>
+                    <input type="text" name="telefone" class="form-control telefone-mask" placeholder="(11) 99999-9999"
+                        required>
                 </div>
 
                 <div class="form-group">
@@ -100,7 +121,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </form>
         </div>
     </div>
-
+    <script src="../../assets/Js/mascaras.js"></script>
 </body>
 
 </html>

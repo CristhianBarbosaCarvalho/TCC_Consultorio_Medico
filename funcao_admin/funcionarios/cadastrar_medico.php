@@ -2,9 +2,19 @@
 require_once '../../autenticacao/verificar_login.php';
 require_once '../../config_BD/conexaoBD.php';
 require_once '../../functions/insert.php';
+require_once '../../functions/validacoes.php'; // ← novo require
 
 $mensagem = '';
 $mensagem_tipo = '';
+
+// Buscar especialidades do BD
+$especialidades = [];
+$result = $conn->query("SELECT id_especialidade, nome FROM especialidade ORDER BY nome ASC");
+if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $especialidades[] = $row;
+    }
+}
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $crm = $_POST['crm']; 
@@ -13,31 +23,64 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $telefone = $_POST['telefone'];
     $email = $_POST['email'];
     $senha = $_POST['senha'];
-    $especialidade = $_POST['especialidade'];
+    $especialidadesSelecionadas = $_POST['especialidades'] ?? [];
 
-    // Criptografar a senha
-    $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
-
-    // Criar o array de dados para inserção
-    $dados = [
-        'crm' => $crm,
-        'nome' => $nome,
-        'cpf' => $cpf,
-        'telefone' => $telefone,
-        'email' => $email,
-        'senha' => $senha_hash,
-        'especialidade' => $especialidade
-    ];
-
-    // Chama a função genérica para inserir no banco
-    $resultado = inserirDados('medicos', $dados);
-
-    if ($resultado === true) {
-        $mensagem = "Médico cadastrado com sucesso!";
-        $mensagem_tipo = "alert-success";
+    if (empty($especialidadesSelecionadas)) {
+        $mensagem = "Selecione ao menos uma especialidade.";
+        $mensagem_tipo = "alert-warning";
     } else {
-        $mensagem = "Erro ao cadastrar médico: " . $resultado;
-        $mensagem_tipo = "alert-danger";
+        // 🔹 Limpa o CPF (mantém apenas números)
+        $cpfLimpo = preg_replace('/\D/', '', $cpf);
+
+        // 🔹 Verifica duplicidade de CPF ou e-mail na tabela 'medicos'
+        $erroDuplicidade = verificarDuplicidadeFuncionario($conn, $cpf, $email);
+
+        if ($erroDuplicidade) {
+            $mensagem = $erroDuplicidade;
+            $mensagem_tipo = "alert-danger";
+        } else {
+            // 🔹 Criptografa senha e insere o médico
+            $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
+            $dados_medico = [
+                'crm' => $crm,
+                'nome' => $nome,
+                'cpf' => $cpfLimpo,
+                'telefone' => $telefone,
+                'email' => $email,
+                'senha' => $senha_hash
+            ];
+
+            $resultado = inserirDados('medicos', $dados_medico);
+
+            if ($resultado === true) {
+                $id_medico = $conn->insert_id;
+
+                $stmt = $conn->prepare("INSERT INTO medico_especialidade (id_medico, id_especialidade) VALUES (?, ?)");
+                $sucesso_total = true;
+
+                foreach ($especialidadesSelecionadas as $id_especialidade) {
+                    $stmt->bind_param("ii", $id_medico, $id_especialidade);
+                    if (!$stmt->execute()) {
+                        $sucesso_total = false;
+                        $erro = $stmt->error;
+                        break;
+                    }
+                }
+
+                $stmt->close();
+
+                if ($sucesso_total) {
+                    $mensagem = "✅ Médico cadastrado com sucesso e especialidades vinculadas!";
+                    $mensagem_tipo = "alert-success";
+                } else {
+                    $mensagem = "⚠️ Médico cadastrado, mas erro ao vincular especialidades: " . $erro;
+                    $mensagem_tipo = "alert-warning";
+                }
+            } else {
+                $mensagem = "❌ Erro ao cadastrar médico: " . $resultado;
+                $mensagem_tipo = "alert-danger";
+            }
+        }
     }
 }
 ?>
@@ -105,19 +148,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
 
             <div class="form-group">
-                <label class="form-label">Especialidade:</label>
-                <select name="especialidade" class="form-control" required>
-                    <option value="">Selecione a especialidade</option>
-                    <option value="Cardiologia">Cardiologia</option>
-                    <option value="Dermatologia">Dermatologia</option>
-                    <option value="Ginecologia">Ginecologia</option>
-                    <option value="Pediatria">Pediatria</option>
-                    <option value="Ortopedia">Ortopedia</option>
-                    <option value="Psiquiatria">Psiquiatria</option>
-                    <option value="Oftalmologia">Oftalmologia</option>
-                    <option value="Clínico Geral">Endocrinologia</option>
-                    <option value="Neurologia">Endocrinologia</option>                    
-                </select>
+                <label class="form-label">Especialidades:</label><br>
+                <?php foreach ($especialidades as $esp): ?>
+                    <label style="display:block; margin-bottom:5px;">
+                        <input type="checkbox" name="especialidades[]" value="<?= $esp['id_especialidade'] ?>">
+                        <?= htmlspecialchars($esp['nome']) ?>
+                    </label>
+                <?php endforeach; ?>
             </div>
 
             <div style="text-align: center; margin-top: 20px;">
@@ -125,6 +162,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
         </form>
     </div>
-  </div>
+</div>
+<script src="../../assets/Js/mascaras.js"></script>
 </body>
 </html>

@@ -32,15 +32,15 @@ require_once '../config_BD/conexaoBD.php';
         <h2 style="text-align:center;">Área do Médico</h2>
 
         <div class="main-buttons">
-            <a href="../func_medico/consultas_agendadas.php" class="button-box">
+            <a href="../funcao_medico/consulta_agendadas.php" class="button-box">
                 <i class="fas fa-calendar-check"></i>
                 Consultas Agendadas
             </a>
-            <a href="../func_medico/prontuarios.php" class="button-box">
+            <a href="../funcao_medico/prontuario.php" class="button-box">
                 <i class="fas fa-notes-medical"></i>
                 Prontuários
             </a>
-            <a href="../func_medico/historico_pacientes.php" class="button-box">
+            <a href="../funcao_medico/historico_paciente.php" class="button-box">
                 <i class="fas fa-history"></i>
                 Histórico de Pacientes
             </a>

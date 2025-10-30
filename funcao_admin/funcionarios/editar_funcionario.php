@@ -8,16 +8,26 @@ require_once '../../functions/validacoes.php';
 $mensagem = '';
 $mensagem_tipo = '';
 $funcionario = null;
+$especialidades_medico = [];
+$todas_especialidades = [];
 
-// Verifica se veio o ID e o tipo (ex: medico, recepcionista, administrador)
+// ===============================
+// Verifica parâmetros da URL
+// ===============================
 if (isset($_GET['id']) && is_numeric($_GET['id']) && isset($_GET['cargo'])) {
     $id = intval($_GET['id']);
-    $cargo = strtolower($_GET['cargo']);
+    $cargo = strtolower(trim($_GET['cargo']));
 
-    // Define a tabela e o campo de ID conforme o cargo
+    // Remove acentos
+    $cargo = str_replace(
+        ['á','à','â','ã','é','è','ê','í','ì','î','ó','ò','ô','õ','ú','ù','û','ç'],
+        ['a','a','a','a','e','e','e','i','i','i','o','o','o','o','u','u','u','c'],
+        $cargo
+    );
+
     $tabelas = [
         'administrador' => ['tabela' => 'administrador', 'campo_id' => 'id_admin'],
-        'médico'        => ['tabela' => 'medicos', 'campo_id' => 'id_medico'],
+        'medico'        => ['tabela' => 'medicos', 'campo_id' => 'id_medico'],
         'recepcionista' => ['tabela' => 'recepcionista', 'campo_id' => 'id_recepcionista']
     ];
 
@@ -25,19 +35,42 @@ if (isset($_GET['id']) && is_numeric($_GET['id']) && isset($_GET['cargo'])) {
         $tabela = $tabelas[$cargo]['tabela'];
         $campo_id = $tabelas[$cargo]['campo_id'];
 
-        // Busca o funcionário
+        // ===============================
+        // Busca os dados do funcionário
+        // ===============================
         $filtros = [$campo_id => $id];
         $config_campos = [$campo_id => ['operador' => '=', 'tipo' => 'i']];
         $resultado = buscarDados($conn, $tabela, $filtros, $config_campos);
 
         if ($resultado->num_rows === 1) {
             $funcionario = $resultado->fetch_assoc();
+
+            // Se for médico, buscar suas especialidades
+            if ($cargo === 'medico') {
+                $sqlEsp = "
+                    SELECT e.id_especialidade, e.nome 
+                    FROM especialidade e
+                    INNER JOIN medico_especialidade me 
+                    ON me.id_especialidade = e.id_especialidade
+                    WHERE me.id_medico = ?";
+                $stmt = $conn->prepare($sqlEsp);
+                $stmt->bind_param("i", $id);
+                $stmt->execute();
+                $especialidades_medico = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+                $stmt->close();
+
+                // Buscar todas as especialidades disponíveis
+                $todas = $conn->query("SELECT id_especialidade, nome FROM especialidade ORDER BY nome");
+                $todas_especialidades = $todas->fetch_all(MYSQLI_ASSOC);
+            }
         } else {
             $mensagem = "Funcionário não encontrado.";
             $mensagem_tipo = "alert-danger";
         }
 
-        // Atualiza caso o formulário seja enviado
+        // ===============================
+        // Atualização via POST
+        // ===============================
         if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $nome = $_POST['nome'];
             $cpf = limparNumero($_POST['cpf']);
@@ -45,7 +78,6 @@ if (isset($_GET['id']) && is_numeric($_GET['id']) && isset($_GET['cargo'])) {
             $telefone = limparNumero($_POST['telefone']);
             $senha = $_POST['senha'] ?? '';
 
-            // Campos específicos
             $dados = [
                 'nome' => $nome,
                 'cpf' => $cpf,
@@ -53,20 +85,15 @@ if (isset($_GET['id']) && is_numeric($_GET['id']) && isset($_GET['cargo'])) {
                 'telefone' => $telefone
             ];
 
-            // Se for médico, também edita CRM e especialidade
-            if ($cargo === 'médico') {
+            if ($cargo === 'medico') {
                 $crm = $_POST['crm'];
-                $especialidade = $_POST['especialidade'];
                 $dados['crm'] = $crm;
-                $dados['especialidade'] = $especialidade;
             }
 
-            // Se tiver senha nova, atualiza
             if (!empty($senha)) {
                 $dados['senha'] = password_hash($senha, PASSWORD_BCRYPT);
             }
 
-            // Validações
             if (!validarCPF($cpf)) {
                 $mensagem = "CPF inválido.";
                 $mensagem_tipo = "alert-danger";
@@ -77,15 +104,44 @@ if (isset($_GET['id']) && is_numeric($_GET['id']) && isset($_GET['cargo'])) {
                 $resultado = atualizarDados($tabela, $dados, $campo_id, $id);
 
                 if ($resultado === true) {
+                    // Atualizar especialidades do médico (apenas inserindo/removendo diferenças)
+                    if ($cargo === 'medico') {
+                        $especialidadesSelecionadas = $_POST['especialidades'] ?? [];
+
+                        // Buscar especialidades atuais
+                        $resultadoAtual = $conn->query("SELECT id_especialidade FROM medico_especialidade WHERE id_medico = $id");
+                        $atual = array_column($resultadoAtual->fetch_all(MYSQLI_ASSOC), 'id_especialidade');
+
+                        // Diferenças
+                        $aInserir = array_diff($especialidadesSelecionadas, $atual);
+                        $aRemover = array_diff($atual, $especialidadesSelecionadas);
+
+                        // Inserir novas
+                        if (!empty($aInserir)) {
+                            $stmt = $conn->prepare("INSERT INTO medico_especialidade (id_medico, id_especialidade) VALUES (?, ?)");
+                            foreach ($aInserir as $idEsp) {
+                                $stmt->bind_param("ii", $id, $idEsp);
+                                $stmt->execute();
+                            }
+                            $stmt->close();
+                        }
+
+                        // Remover desmarcadas
+                        if (!empty($aRemover)) {
+                            $ids = implode(",", $aRemover);
+                            $conn->query("DELETE FROM medico_especialidade WHERE id_medico = $id AND id_especialidade IN ($ids)");
+                        }
+                    }
+
                     $mensagem = "Funcionário atualizado com sucesso!";
                     $mensagem_tipo = "alert-success";
-                    $funcionario = array_merge($funcionario, $dados);
                 } else {
                     $mensagem = "Erro ao atualizar: $resultado";
                     $mensagem_tipo = "alert-danger";
                 }
             }
         }
+
     } else {
         $mensagem = "Cargo inválido.";
         $mensagem_tipo = "alert-danger";
@@ -95,34 +151,36 @@ if (isset($_GET['id']) && is_numeric($_GET['id']) && isset($_GET['cargo'])) {
     $mensagem_tipo = "alert-danger";
 }
 
+// ===============================
+// Funções de formatação
+// ===============================
 function formatarCPF($cpf) {
-    $cpf = preg_replace('/\D/', '', $cpf); // remove tudo que não for número
+    $cpf = preg_replace('/\D/', '', $cpf);
     if (strlen($cpf) === 11) {
         return substr($cpf, 0, 3) . '.' . substr($cpf, 3, 3) . '.' . substr($cpf, 6, 3) . '-' . substr($cpf, 9, 2);
     }
-    return $cpf; // retorna o valor original se estiver incompleto
+    return $cpf;
 }
 
 function formatarTelefone($telefone) {
-    $telefone = preg_replace('/\D/', '', $telefone); // remove tudo que não for número
+    $telefone = preg_replace('/\D/', '', $telefone);
     if (strlen($telefone) === 10) {
-        // formato (XX) XXXX-XXXX
         return '(' . substr($telefone, 0, 2) . ') ' . substr($telefone, 2, 4) . '-' . substr($telefone, 6);
     } elseif (strlen($telefone) === 11) {
-        // formato (XX) XXXXX-XXXX
         return '(' . substr($telefone, 0, 2) . ') ' . substr($telefone, 2, 5) . '-' . substr($telefone, 7);
     }
-    return $telefone; // retorna o valor original se estiver incompleto
+    return $telefone;
 }
-
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Funcionário</title>
     <link rel="stylesheet" href="../../assets/css/style.css">
-    <script src="../../assets/Js/script_formatar_editar.js"></script>
+    <script src="../../assets/js/formatacao.js" defer></script>
 </head>
 <body>
 
@@ -136,12 +194,12 @@ function formatarTelefone($telefone) {
 <nav class="navbar">
     <div class="container">
         <ul class="nav-list">
-            <a href="gerenciar_funcionarios.php" class="nav-link">Voltar</a>
+            <li><a href="gerenciar_funcionarios.php" class="nav-link">Voltar</a></li>
         </ul>
     </div>
 </nav>
 
-<div class="container" style="margin-top: 100px; max-width: 600px;">
+<main class="container form-container">
     <?php if ($mensagem): ?>
         <p class="alert <?= $mensagem_tipo ?>"><?= htmlspecialchars($mensagem) ?></p>
     <?php endif; ?>
@@ -156,7 +214,7 @@ function formatarTelefone($telefone) {
 
                 <div class="form-group">
                     <label class="form-label">CPF:</label>
-                    <input type="text" name="cpf" class="form-control" value="<?= formatarCPF($funcionario['cpf']) ?>" required>
+                    <input type="text" name="cpf" class="form-control cpf-mask" value="<?= formatarCPF($funcionario['cpf']) ?>" required>
                 </div>
 
                 <div class="form-group">
@@ -166,18 +224,25 @@ function formatarTelefone($telefone) {
 
                 <div class="form-group">
                     <label class="form-label">Telefone:</label>
-                    <input type="text" name="telefone" class="form-control" value="<?= formatarTelefone($funcionario['telefone']) ?>" required>
+                    <input type="text" name="telefone" class="form-control telefone-mask" value="<?= formatarTelefone($funcionario['telefone']) ?>" required>
                 </div>
 
-                <?php if ($cargo === 'médico'): ?>
+                <?php if ($cargo === 'medico'): ?>
                     <div class="form-group">
                         <label class="form-label">CRM:</label>
                         <input type="text" name="crm" class="form-control" value="<?= htmlspecialchars($funcionario['crm']) ?>" required>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Especialidade:</label>
-                        <input type="text" name="especialidade" class="form-control" value="<?= htmlspecialchars($funcionario['especialidade']) ?>" required>
+                        <label class="form-label">Especialidades:</label><br>
+                        <?php foreach ($todas_especialidades as $esp): ?>
+                            <label style="display:block; margin-bottom:5px;">
+                                <input type="checkbox" name="especialidades[]" value="<?= $esp['id_especialidade'] ?>"
+                                    <?= in_array($esp['id_especialidade'], array_column($especialidades_medico, 'id_especialidade')) ? 'checked' : '' ?>>
+                                <?= htmlspecialchars($esp['nome']) ?>
+                            </label>
+                        <?php endforeach; ?>
+                        <small>Selecione uma ou mais especialidades.</small>
                     </div>
                 <?php endif; ?>
 
@@ -186,13 +251,11 @@ function formatarTelefone($telefone) {
                     <input type="password" name="senha" class="form-control" placeholder="Deixe em branco para não alterar">
                 </div>
 
-                <div style="text-align: center; margin-top: 20px;">
-                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
-                </div>
+                <button type="submit" class="btn btn-success btn-block">Salvar Alterações</button>
             </form>
         </div>
     <?php endif; ?>
-</div>
+</main>
 
 </body>
 </html>

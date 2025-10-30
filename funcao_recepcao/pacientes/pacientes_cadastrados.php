@@ -190,8 +190,8 @@ function toggleFiltros() {
 }
 </script>
 
-<script src="../../assets/Js/script_listar_pacientes.js"></script>
-<script src="../../assets/Js/script_editar_excluir_generico.js"></script>
+
+<script src="../../assets/Js/mascaras.js"></script>
 
 </body>
 </html>

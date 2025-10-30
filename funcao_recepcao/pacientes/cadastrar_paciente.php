@@ -64,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta charset="UTF-8">
     <title>Cadastrar Paciente</title>
     <link rel="stylesheet" href="../../assets/css/style.css">
-    <script src="../../assets/js/formatacao.js" defer></script>
+    <script src="../../assets/js/mascaras.js" defer></script>
 </head>
 <body>
 
@@ -107,7 +107,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <input type="text" name="cpf" class="form-control cpf-mask" placeholder="123.456.789-00" required>
             </div>
 
-            <div class="form-group">
+            <div class="form-group"> 
                 <label class="form-label">Email:</label>
                 <input type="email" name="email" class="form-control" placeholder="exemplo@email.com" required>
             </div>
