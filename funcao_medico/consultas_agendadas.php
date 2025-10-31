@@ -19,7 +19,8 @@ $sql = "
     FROM consulta c
     INNER JOIN paciente p ON c.fk_id_paciente = p.id_paciente
     LEFT JOIN pagamentos pay ON c.id_consulta = pay.fk_id_consulta
-    WHERE c.fk_id_medico = ?
+    WHERE c.fk_id_medico = ? 
+        AND c.status = 'confirmada'
     ORDER BY c.data_hora DESC
 ";
 $stmt = $conn->prepare($sql);
