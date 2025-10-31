@@ -187,10 +187,6 @@ verificarAcesso(['recepcao']);
                                         </a>
                                     <?php endif; ?>
 
-                                    <a href="detalhes_consulta.php?id=<?= $row['id_consulta'] ?>" class="btn btn-view">
-                                        <i class="fas fa-eye"></i> Ver Consulta
-                                    </a>
-
                                     <a href="editar_consulta.php?id=<?= $row['id_consulta'] ?>" class="btn btn-edit">
                                         <i class="fas fa-edit"></i> Editar
                                     </a>
