@@ -71,7 +71,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <header class="header">
     <div class="container header-content">
         <h1>Cadastrar Paciente</h1>
-        <a href="../../views/logout.php" class="logout-btn">Sair</a>
     </div>
 </header>
 

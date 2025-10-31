@@ -32,13 +32,13 @@ verificarAcesso(['recepcao']);
         <h2 style="text-align:center;">Área da Recepção</h2>
 
         <div class="main-buttons">
-            <a href="../funcao_recepcao/pacientes/pacientes_cadastrados.php" class="button-box">
-                <i class="fas fa-users"></i>
-                Ver Pacientes
-            </a>
             <a href="../funcao_recepcao/pacientes/cadastrar_paciente.php" class="button-box">
                 <i class="fas fa-user-plus"></i>
                 Cadastrar Paciente
+            </a>
+            <a href="../funcao_recepcao/pacientes/pacientes_cadastrados.php" class="button-box">
+                <i class="fas fa-users"></i>
+                Ver Pacientes
             </a>
             <a href="../funcao_recepcao/agenda/agenda.php" class="button-box">
                 <i class="fas fa-calendar-alt"></i>
@@ -47,10 +47,6 @@ verificarAcesso(['recepcao']);
             <a href="../funcao_recepcao/consulta/marcar_consulta.php" class="button-box">
                 <i class="fas fa-stethoscope"></i>
                 Marcar Consulta
-            </a>
-            <a href="../funcao_recepcao/consulta/gerenciar_consulta.php" class="button-box">
-                <i class="fas fa-file-medical"></i>
-                Gerenciar Consulta
             </a>
             <a href="../funcao_recepcao/consulta/relatorio_consulta.php" class="button-box">
                 <i class="fas fa-calendar-check"></i>

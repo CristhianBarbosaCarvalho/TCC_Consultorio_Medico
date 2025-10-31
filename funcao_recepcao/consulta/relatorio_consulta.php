@@ -1,20 +1,26 @@
 <?php
 require_once '../../config_BD/conexaoBD.php';
 require_once '../../autenticacao/verificar_login.php';
-verificarAcesso([ 'recepcao']);
+verificarAcesso(['recepcao']);
 ?>
 
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatório de Consultas por Paciente</title>
     <link rel="stylesheet" href="../../assets/css/style.css">
-    <link rel="stylesheet" href="../../assets/css/relatorio_consulta.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
+
         form {
             display: flex;
             justify-content: center;
@@ -56,7 +62,7 @@ verificarAcesso([ 'recepcao']);
         }
 
         th {
-            background-color: #4CAF50;
+            background-color: #007bff;
             color: white;
         }
 
@@ -72,20 +78,43 @@ verificarAcesso([ 'recepcao']);
             font-size: 0.9rem;
         }
 
-        .btn-view { background-color: #3498db; }
+        .btn-view { background-color: #46535c; }
         .btn-edit { background-color: #f1c40f; }
         .btn-delete { background-color: #e74c3c; }
         .btn-add { background-color: #007bff; }
 
         .btn:hover { opacity: 0.9; }
+
+        .action-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
     </style>
 </head>
-
 <body>
 
-    <div class="container">
-        <h2>Relatório de Consultas por Paciente</h2>
+<header class="header">
+    <div class="container header-content">
+        <h1>Relatório de Consultas por Paciente</h1>
+    </div>
+</header>
 
+<nav class="navbar">
+    <div class="container">
+        <ul class="nav-list">
+            <a href="../../dashboard_users/recepcao.php" class="nav-link">Voltar</a>
+        </ul>
+    </div>
+</nav>
+
+<div class="container" style="margin-top: 40px;">
+    <div class="card">
         <!-- 🔍 Campo de busca -->
         <form method="GET">
             <input type="text" name="busca" placeholder="Digite o nome ou CPF do paciente" value="<?= htmlspecialchars($_GET['busca'] ?? '') ?>">
@@ -120,6 +149,8 @@ verificarAcesso([ 'recepcao']);
             $result = $conn->query($sql);
         ?>
 
+        <h2>Resultados da Busca</h2>
+
         <table>
             <thead>
                 <tr>
@@ -145,13 +176,13 @@ verificarAcesso([ 'recepcao']);
                             <td><?= htmlspecialchars($row['status_consulta']) ?></td>
                             <td><?= htmlspecialchars($row['status_pagamento']) ?></td>
                             <td>
-                                <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                                <div class="action-container">
                                     <?php if ($row['status_pagamento'] === 'Pendente'): ?>
-                                        <a href="../pagamento/registrar_pagamento.php?id_consulta=<?= $row['id_consulta'] ?>" class="btn btn-add">
+                                        <a href="../../pagamento/registrar_pagamento.php?id_consulta=<?= $row['id_consulta'] ?>" class="btn btn-add">
                                             <i class="fas fa-credit-card"></i> Registrar Pagamento
                                         </a>
                                     <?php else: ?>
-                                        <a href="../pagamento/visualizar_pagamento.php?id_consulta=<?= $row['id_consulta'] ?>" class="btn btn-view">
+                                        <a href="../../pagamento/visualizar_pagamento.php?id_consulta=<?= $row['id_consulta'] ?>" class="btn btn-view">
                                             <i class="fas fa-eye"></i> Ver Pagamento
                                         </a>
                                     <?php endif; ?>
@@ -181,6 +212,8 @@ verificarAcesso([ 'recepcao']);
             <p style="text-align:center; margin-top:20px;">Digite o nome ou CPF do paciente para visualizar as consultas.</p>
         <?php endif; ?>
     </div>
+</div>
 
+<script src="../../assets/Js/script_editar_excluir_generico.js"></script>
 </body>
 </html>

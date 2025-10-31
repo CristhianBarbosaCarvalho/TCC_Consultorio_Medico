@@ -1,95 +1,71 @@
 <?php
-require_once '../../config_BD/conexaoBD.php';
-require_once '../../autenticacao/verificar_login.php';
+require_once '../config_BD/conexaoBD.php';
+require_once '../autenticacao/verificar_login.php';
 verificarAcesso(['medico']);
 
-// Pega o ID da consulta passado na URL
-$id_consulta = intval($_GET['id'] ?? 0);
-
-if ($id_consulta <= 0) {
-    echo "Consulta inválida.";
-    exit();
+if (!isset($_GET['id'])) {
+    die("Consulta não encontrada.");
 }
+$id_consulta = intval($_GET['id']);
 
-// Consulta os dados da consulta e do paciente
-$sql = "
-    SELECT 
-        c.id_consulta,
-        c.data_hora,
-        c.status AS status_consulta,
-        c.observacoes,
-        p.nome AS paciente,
-        p.email AS paciente_email,
-        p.telefone AS paciente_telefone,
-        m.nome AS medico
-    FROM consulta c
-    INNER JOIN paciente p ON c.fk_id_paciente = p.id_paciente
-    INNER JOIN medicos m ON c.fk_id_medico = m.id_medico
-    WHERE c.id_consulta = ?
-    LIMIT 1
-";
-
+$sql = "SELECT c.*, p.nome AS paciente, p.cpf, p.email, p.telefone, m.nome AS medico
+        FROM consulta c
+        INNER JOIN paciente p ON c.fk_id_paciente = p.id_paciente
+        INNER JOIN medicos m ON c.fk_id_medico = m.id_medico
+        WHERE c.id_consulta = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $id_consulta);
 $stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows === 0) {
-    echo "Consulta não encontrada.";
-    exit();
+$consulta = $stmt->get_result()->fetch_assoc();
+if (!$consulta) {
+    die("Consulta não encontrada.");
 }
-
-$consulta = $result->fetch_assoc();
-
-// Consulta o pagamento, se houver
-$sqlPag = "SELECT valor, forma_de_pagamento, status FROM pagamentos WHERE fk_id_consulta = ?";
-$stmtPag = $conn->prepare($sqlPag);
-$stmtPag->bind_param("i", $id_consulta);
-$stmtPag->execute();
-$resultPag = $stmtPag->get_result();
-$pagamento = $resultPag->fetch_assoc() ?? null;
-
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <title>Detalhes da Consulta</title>
     <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        .container { width: 80%; margin: 40px auto; background: #fff; padding: 20px; border-radius: 8px; }
-        h2 { text-align: center; margin-bottom: 20px; }
-        .info { margin-bottom: 15px; }
-        .info label { font-weight: bold; }
-        .btn-voltar { display: block; margin: 30px auto; padding: 10px 20px; background-color: #3498db; color: #fff; text-decoration: none; border-radius: 6px; text-align: center; }
-        .btn-voltar:hover { opacity: 0.9; }
+    .card {
+        max-width: 800px;
+        margin: 40px auto;
+        background: #fff;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1)
+    }
+
+    .btn {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 8px 15px;
+        background: #4e5251;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px
+    }
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <h2>Detalhes da Consulta</h2>
+    <div class="card">
+        <h2>Consulta de <?= htmlspecialchars($consulta['paciente']) ?></h2>
+        <p><strong>Médico:</strong> <?= htmlspecialchars($consulta['medico']) ?></p>
+        <p><strong>Data/Hora:</strong> <?= date('d/m/Y H:i', strtotime($consulta['data_hora'])) ?></p>
+        <p><strong>Status:</strong> <?= htmlspecialchars($consulta['status']) ?></p>
+        <p><strong>Observações:</strong><br><?= nl2br(htmlspecialchars($consulta['observacoes'])) ?></p>
+        <p><strong>Sintomas:</strong><br><?= nl2br(htmlspecialchars($consulta['sintomas'])) ?></p>
+        <p><strong>Diagnóstico:</strong><br><?= nl2br(htmlspecialchars($consulta['diagnostico'])) ?></p>
+        <p><strong>Prescrição:</strong><br><?= nl2br(htmlspecialchars($consulta['prescricao'])) ?></p>
 
-        <div class="info"><label>Paciente:</label> <?= htmlspecialchars($consulta['paciente']) ?></div>
-        <div class="info"><label>Email:</label> <?= htmlspecialchars($consulta['paciente_email']) ?></div>
-        <div class="info"><label>Telefone:</label> <?= htmlspecialchars($consulta['paciente_telefone']) ?></div>
-        <div class="info"><label>Médico:</label> <?= htmlspecialchars($consulta['medico']) ?></div>
-        <div class="info"><label>Data/Hora:</label> <?= date('d/m/Y H:i', strtotime($consulta['data_hora'])) ?></div>
-        <div class="info"><label>Status da Consulta:</label> <?= htmlspecialchars($consulta['status_consulta']) ?></div>
-        <div class="info"><label>Observações:</label> <?= htmlspecialchars($consulta['observacoes']) ?></div>
-
-        <?php if ($pagamento): ?>
-            <div class="info"><label>Valor:</label> R$ <?= number_format($pagamento['valor'], 2, ',', '.') ?></div>
-            <div class="info"><label>Forma de Pagamento:</label> <?= htmlspecialchars($pagamento['forma_de_pagamento']) ?></div>
-            <div class="info"><label>Status do Pagamento:</label> <?= htmlspecialchars($pagamento['status']) ?></div>
-        <?php else: ?>
-            <div class="info"><label>Pagamento:</label> Não registrado</div>
-        <?php endif; ?>
-
-        <a href="../funcao_medico/consultas_agendadas.php" class="btn-voltar">
-            <i class="fas fa-arrow-left"></i> Voltar para Consultas Agendadas
-        </a>
+        <a href="prontuario.php?id_consulta=<?= $id_consulta ?>" class="btn">Editar/Registrar Prontuário</a>
+        <a href="prontuario_pdf.php?id_consulta=<?= $id_consulta ?>" class="btn" target="_blank">Gerar PDF do
+            Prontuário</a>
+        <a href="../funcao_medico/consultas_agendadas.php" class="btn" style="background:#6c757d">Voltar</a>
     </div>
 </body>
+
 </html>

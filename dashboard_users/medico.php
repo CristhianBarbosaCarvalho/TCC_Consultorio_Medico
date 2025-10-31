@@ -3,22 +3,20 @@ require_once '../config_BD/conexaoBD.php';
 require_once '../autenticacao/verificar_login.php';
 verificarAcesso(['medico']);
 ?>
-
 <!DOCTYPE html>
 <html>
-
 <head>
+    <meta charset="utf-8">
     <title>Painel do Médico</title>
     <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/recepcao.css"> <!-- mesmo estilo do admin -->
+    <link rel="stylesheet" href="../assets/css/recepcao.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-
 <body>
     <header class="header">
         <div class="container header-content">
-            <h1>Bem-vindo, Dr. <?php echo $_SESSION['usuario_nome']; ?>!</h1>
+            <h1>Bem-vindo, Dr. <?= htmlspecialchars($_SESSION['usuario_nome']) ?>!</h1>
             <a href="../autenticacao/logout.php" class="logout-btn">Sair</a>
         </div>
     </header>
@@ -37,17 +35,11 @@ verificarAcesso(['medico']);
                 <i class="fas fa-calendar-check"></i>
                 Consultas Agendadas
             </a>
-            <a href="../funcao_medico/prontuario.php" class="button-box">
-                <i class="fas fa-notes-medical"></i>
-                Prontuários
-            </a>
             <a href="../funcao_medico/historico_paciente.php" class="button-box">
                 <i class="fas fa-history"></i>
                 Histórico de Pacientes
             </a>
         </div>
     </div>
-    </div>
 </body>
-
 </html>

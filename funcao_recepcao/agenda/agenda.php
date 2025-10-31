@@ -29,7 +29,6 @@ $medicos = $conn->query($sql);
     <header class="header">
         <div class="container header-content">
             <h1>Gerenciar Agendas</h1>
-            <a href="../../autenticacao/logout.php" class="logout-btn">Sair</a>
         </div>
     </header>
  

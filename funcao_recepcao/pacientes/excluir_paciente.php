@@ -58,7 +58,6 @@ if (isset($_GET['id_paciente']) && is_numeric($_GET['id_paciente'])) {
     <header class="header">
         <div class="container header-content">
             <h1>Excluir Paciente</h1>
-            <a href="../views/logout.php" class="logout-btn">Sair</a>
         </div>
     </header>
 

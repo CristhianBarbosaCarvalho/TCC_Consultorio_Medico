@@ -81,7 +81,6 @@ $result = buscarDados($conn, 'paciente', $filtros, $config_campos);
 <header class="header">
     <div class="container header-content">
         <h1>Pacientes Cadastrados</h1>
-        <a href="../../autenticacao/logout.php" class="logout-btn">Sair</a>
     </div>
 </header>
 

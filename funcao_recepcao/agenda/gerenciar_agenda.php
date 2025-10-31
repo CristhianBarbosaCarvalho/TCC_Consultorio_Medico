@@ -134,7 +134,6 @@ $horarios = $conn->query("SELECT * FROM agenda WHERE fk_id_medico = $id_medico O
     <header class="header">
         <div class="container header-content">
             <h1>Agenda do Dr.(a) <?= htmlspecialchars($medico['nome']) ?></h1>
-            <a href="../../autenticacao/logout.php" class="logout-btn">Sair</a>
         </div>
     </header>
 

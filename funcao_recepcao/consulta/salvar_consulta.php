@@ -4,23 +4,21 @@ require_once '../../autenticacao/verificar_login.php';
 verificarAcesso(['recepcao']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Dados vindos do formulário
     $id_medico         = $_POST['id_medico']          ?? null;
     $id_paciente       = $_POST['id_paciente']        ?? null;
     $data_consulta     = $_POST['data_consulta']      ?? null;
     $hora_consulta     = $_POST['hora_consulta']      ?? null;
-    $status_consulta   = $_POST['status_consulta']    ?? 'pendente'; // valor original
+    $status_consulta   = $_POST['status_consulta']    ?? 'Agendada';
     $valor             = $_POST['valor']              ?? null;
     $forma_pagamento   = $_POST['forma_de_pagamento'] ?? null;
     $status_pagamento  = $_POST['status_pagamento']   ?? null;
     $observacoes       = $_POST['observacoes']        ?? '';
 
-    // ⚠️ Verificação básica
     if (!$id_medico || !$id_paciente || !$data_consulta || !$hora_consulta) {
-        die("Erro: dados do formulário incompletos.");
+        header("Location: marcar_consulta.php?status=erro&msg=" . urlencode("Dados do formulário incompletos."));
+        exit;
     }
 
-    // 🔄 Mapeamento para o ENUM do banco (somente para tabela agendamento)
     $status_map = [
         'confirmado'  => 'pago',
         'confirmada'  => 'pago',
@@ -36,21 +34,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $status_normalizado = strtolower(trim($status_consulta));
     $status_agendamento = $status_map[$status_normalizado] ?? 'pendente';
 
-    // Buscar automaticamente o id_agenda correspondente
     $sqlAgenda = "SELECT id_agenda FROM agenda 
                   WHERE fk_id_medico = '$id_medico' 
                     AND data_agenda = '$data_consulta' 
                   LIMIT 1";
     $resAgenda = $conn->query($sqlAgenda);
 
-    if ($resAgenda && $resAgenda->num_rows > 0) {
-        $rowAgenda = $resAgenda->fetch_assoc();
-        $id_agenda = $rowAgenda['id_agenda'];
-    } else {
-        die("Erro: Nenhuma agenda encontrada para o médico e data selecionados.");
+    if (!$resAgenda || $resAgenda->num_rows === 0) {
+        header("Location: marcar_consulta.php?status=erro&msg=" . urlencode("Nenhuma agenda encontrada para o médico e data selecionados."));
+        exit;
     }
 
-    // 🟢 Inserir agendamento (usa o status mapeado)
+    $id_agenda = $resAgenda->fetch_assoc()['id_agenda'];
+
     $sqlAgendamento = "INSERT INTO agendamento 
         (fk_id_paciente, fk_id_agenda, dia_consulta, hora_agendada, status, observacoes)
         VALUES 
@@ -58,9 +54,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($conn->query($sqlAgendamento)) {
         $id_agendamento = $conn->insert_id;
-
-        // 🟢 Inserir consulta (usa o valor original do formulário)
         $data_hora = $data_consulta . ' ' . $hora_consulta . ':00';
+
         $sqlConsulta = "INSERT INTO consulta 
             (data_hora, status, observacoes, fk_id_paciente, fk_id_medico, fk_id_agenda)
             VALUES 
@@ -69,29 +64,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($conn->query($sqlConsulta)) {
             $id_consulta = $conn->insert_id;
 
-            // 🟢 Inserir pagamento
             $sqlPagamento = "INSERT INTO pagamentos 
                 (data_pagamento, valor, forma_de_pagamento, status, fk_id_consulta)
                 VALUES 
                 (NOW(), '$valor', '$forma_pagamento', '$status_pagamento', '$id_consulta')";
 
             if ($conn->query($sqlPagamento)) {
-                echo "
-                    <script>
-                        alert('Consulta registrada com sucesso!');
-                        window.location.href = '../../dashboard_users/recepcao.php';
-                    </script>
-                ";
+                header("Location: marcar_consulta.php?status=sucesso");
+                exit;
             } else {
-                echo 'Erro ao registrar pagamento: ' . $conn->error;
+                header("Location: marcar_consulta.php?status=erro&msg=" . urlencode("Erro ao registrar pagamento: " . $conn->error));
+                exit;
             }
         } else {
-            echo 'Erro ao registrar consulta: ' . $conn->error;
+            header("Location: marcar_consulta.php?status=erro&msg=" . urlencode("Erro ao registrar consulta: " . $conn->error));
+            exit;
         }
     } else {
-        echo 'Erro ao registrar agendamento: ' . $conn->error;
+        header("Location: marcar_consulta.php?status=erro&msg=" . urlencode("Erro ao registrar agendamento: " . $conn->error));
+        exit;
     }
 } else {
-    echo 'Método inválido.';
+    header("Location: marcar_consulta.php?status=erro&msg=" . urlencode("Método inválido."));
+    exit;
 }
 ?>

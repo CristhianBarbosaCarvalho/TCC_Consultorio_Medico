@@ -1,7 +1,7 @@
 <?php
-require_once '../../config_BD/conexaoBD.php';
-require_once '../../autenticacao/verificar_login.php';
-verificarAcesso(['medico', 'recepcao']);
+require_once '../config_BD/conexaoBD.php';
+require_once '../autenticacao/verificar_login.php';
+verificarAcesso(['recepcao']);
 
 // Verificar se o ID da consulta foi enviado
 if (!isset($_GET['id_consulta'])) {
@@ -37,10 +37,10 @@ $painelLink = '#';
 if (isset($_SESSION['usuario_tipo'])) {
     switch ($_SESSION['usuario_tipo']) {
         case 'medico':
-            $painelLink = '../../dashboard_users/medico.php';
+            $painelLink = '../dashboard_users/medico.php';
             break;
         case 'recepcao':
-            $painelLink = '../../dashboard_users/recepcao.php';
+            $painelLink = '../funcao_recepcao/consulta/relatorio_consulta.php';
             break;
     }
 }
