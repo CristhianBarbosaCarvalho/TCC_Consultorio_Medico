@@ -60,8 +60,6 @@ if (!$consulta) {
         <p><strong>Sintomas:</strong><br><?= nl2br(htmlspecialchars($consulta['sintomas'])) ?></p>
         <p><strong>Diagnóstico:</strong><br><?= nl2br(htmlspecialchars($consulta['diagnostico'])) ?></p>
         <p><strong>Prescrição:</strong><br><?= nl2br(htmlspecialchars($consulta['prescricao'])) ?></p>
-
-        <a href="prontuario.php?id_consulta=<?= $id_consulta ?>" class="btn">Editar/Registrar Prontuário</a>
         <a href="prontuario_pdf.php?id_consulta=<?= $id_consulta ?>" class="btn" target="_blank">Gerar PDF do
             Prontuário</a>
         <a href="../funcao_medico/consultas_agendadas.php" class="btn" style="background:#6c757d">Voltar</a>

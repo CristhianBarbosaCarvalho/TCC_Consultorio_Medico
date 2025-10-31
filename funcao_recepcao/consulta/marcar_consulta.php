@@ -134,7 +134,7 @@ if (isset($_GET['status'])) {
                 <input type="text" id="paciente_busca" class="form-control" autocomplete="off" placeholder="Digite nome ou CPF">
                 <div id="resultado_paciente" class="resultados"></div>
                 <input type="hidden" name="id_paciente" id="id_paciente" required>
-            </div>
+            </div> 
 
             <div class="form-group">
                 <label for="especialidade" class="form-label">Especialidade</label>
